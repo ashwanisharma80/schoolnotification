@@ -43,6 +43,7 @@ export class UserData {
   };
 
   logout(): void {
+    this.storage.set('AuthToken', '');
     this.storage.remove(this.HAS_LOGGED_IN);
     this.storage.remove('username');
     this.events.publish('user:logout');

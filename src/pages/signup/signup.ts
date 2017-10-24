@@ -9,6 +9,7 @@ import { UserOptions } from '../../interfaces/user-options';
 
 import { TabsPage } from '../tabs-page/tabs-page';
 import { Http,Headers } from '@angular/http';
+import { Storage } from '@ionic/storage';
 
 
 @Component({
@@ -20,7 +21,7 @@ export class SignupPage {
     password:any;
     data:any;
     url: string = 'http://eventapi.droidinfotech.com/webservice/signup';
-
+    AuthToken:any;
   
   signup: UserOptions = { username: '', password: '' };
   submitted = false;
@@ -28,8 +29,9 @@ export class SignupPage {
   constructor(public navCtrl: NavController, 
     public userData: UserData,
     public http: Http,
-    public toastCtrl: ToastController
-   
+    public toastCtrl: ToastController,
+   public storage: Storage
+
     ) { }
 
   onSignup(form: NgForm) {
@@ -44,7 +46,7 @@ signupapi(username:string,password:string) {
              let headers = new Headers();
              headers.append('Content-Type', 'application/x-www-form-urlencoded');
             return new Promise(resolve => {
-              this.http.post(this.url,{email:username,password:password},{headers: headers})
+              this.http.post(this.url,{email:username,password:password,role:'ROLE_SCHOOL'},{headers: headers})
                 .map(res => res.json())
                 .subscribe(data => {
                   this.data = data;
@@ -55,7 +57,7 @@ signupapi(username:string,password:string) {
                             position: 'top'
                           });
                           toast.present();
-
+                          this.storage.set('AuthToken', '');
                   }else{
                       let toast = this.toastCtrl.create({
                             message: this.data.message,
@@ -63,6 +65,8 @@ signupapi(username:string,password:string) {
                             position: 'top'
                           });
                           toast.present();   
+                           this.storage.set('AuthToken', this.data.data);
+    
                           this.navCtrl.push(TabsPage);
                            this.userData.signup(username);
                      resolve(this.data);

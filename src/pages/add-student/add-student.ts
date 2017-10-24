@@ -1,55 +1,40 @@
 import { Component } from '@angular/core';
-import { NgForm } from '@angular/forms';
-
-import { NavController,ToastController } from 'ionic-angular';
+import { NavController,ToastController,LoadingController } from 'ionic-angular';
 import { Http,Headers } from '@angular/http';
 import { Storage } from '@ionic/storage';
 
-import { UserData } from '../../providers/user-data';
-
-import { UserOptions } from '../../interfaces/user-options';
-
-import { TabsPage } from '../tabs-page/tabs-page';
-import { SignupPage } from '../signup/signup';
-
-
 @Component({
-  selector: 'page-user',
-  templateUrl: 'login.html'
+  selector: 'page-add-student',
+  templateUrl: 'add-student.html',
 })
-export class LoginPage {
-    username:any;
-    password:any;
-    data:any;
-    url: string = 'http://eventapi.droidinfotech.com/webservice/login';
-  login: UserOptions = { username: '', password: '' };
-  submitted = false;
+export class AddStudentPage {
+
+   data:any;
+  url: string = 'http://eventapi.droidinfotech.com/webservice/exihibitorlist';
+  
     
   constructor(public navCtrl: NavController, 
-    public userData: UserData,
     public http: Http,
     public toastCtrl: ToastController,
-    public storage: Storage
-
-    ) { }
-
-  onLogin(form: NgForm) {
-    this.submitted = true;
-    if (form.valid) {
-      this.loginapi(form.value.username,form.value.password);
-      
+    public storage: Storage,
+    public loadingCtrl: LoadingController
+  ) {
+    
+  }
+   ionViewWillLoad(){
+      //  this.presentLoadingText();
     }
+  ionViewDidLoad() {
+    console.log('ionViewDidLoad AddStudentPage');
+   // this.presentLoadingText();
+    
   }
 
-  onSignup() {
-    this.navCtrl.push(SignupPage);
-  }
-
-    loginapi(username:string,password:string) {
+        addstudentapi(username:string,password:string) {
              let headers = new Headers();
              headers.append('Content-Type', 'application/x-www-form-urlencoded');
             return new Promise(resolve => {
-              this.http.post(this.url,{email:username,password:password},{headers: headers})
+              this.http.post(this.url,{email:username,password:password,role:'ROLE_STUDENT'},{headers: headers})
                 .map(res => res.json())
                 .subscribe(data => {
                   this.data = data;
@@ -68,16 +53,26 @@ export class LoginPage {
                             position: 'top'
                           });
                           toast.present();   
-                          this.storage.set('AuthToken', this.data.data);
+                           this.storage.set('AuthToken', this.data.data);
     
-                          this.navCtrl.push(TabsPage);
-                          this.userData.login(username);
-                         resolve(this.data);
+                         // this.navCtrl.push(TabsPage);
+                       //    this.userData.signup(username);
+                     resolve(this.data);
                   }
                 });
             });
        }
-       
+      
+    presentLoadingText() {
+        const loading = this.loadingCtrl.create({
+          spinner: 'hide',
+          content: 'Loading Please Wait...'
+        });
 
+        loading.present();
 
+        setTimeout(() => {
+          loading.dismiss();
+        }, 5000);
+    }
 }
